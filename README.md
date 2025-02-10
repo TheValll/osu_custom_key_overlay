@@ -37,28 +37,35 @@ Here’s an example configuration in the `.ini` file:
 path=icon.ico
 
 [General]
-Key_1=81
-Key_2=87
+Key_1=83
+Key_2=68
 
 [images]
-key_1=img/logo.png
-key_2=img/logo.png
+key_1=:img/img/icon.ico
+key_2=:img/img/icon.ico
+
+[icon]
+path=:img/img/icon.ico
 
 [colors]
-background_key_1="rgb(255,255,255)"
-background_key_2="rgb(255,255,255)"
-border_key_1="rgb(255, 152, 210)"
-border_key_2="rgb(255, 152, 210)"
-slider_1="rgb(255, 152, 210)"
-slider_2="rgb(255, 152, 210)"
-slider_border_1="rgb(255,255,255)"
-slider_border_2="rgb(255,255,255)"
+background_key_1="transparent"
+background_key_2="transparent"
+border_key_1="transparent"
+border_key_2="transparent"
+slider_1="transparent"
+slider_2="transparent"
+slider_border_1="transparent"
+slider_border_2="transparent"
 
 [colors_on_pressing]
-background_key_1="rgb(255, 152, 210)"
-background_key_2="rgb(255, 152, 210)"
-border_key_1="rgb(255,255,255)"
-border_key_2="rgb(255,255,255)"
+background_key_1="transparent"
+background_key_2="transparent"
+border_key_1="transparent"
+border_key_2="transparent"
+
+[slider_images]
+key_1=:img/img/icon.ico
+key_2=:img/img/icon.ico
 ```
 
 ## KeyCode configuration ➡️

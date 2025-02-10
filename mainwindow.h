@@ -33,15 +33,16 @@ private:
     QList<QPropertyAnimation *> animationsKey1;
     QList<QPropertyAnimation *> animationsKey2;
 
-    void checkStatusKey1(QPushButton *name, int keycode, const QString &imagePath, const QString &keyColor, const QString &keyBorderColor, const QString &keyColorOnPressing, const QString &keyBorderColorOnPressing, const QString &sliderColor, const QString &sliderBorderColor);
-    void checkStatusKey2(QPushButton *name, int keycode, const QString &imagePath, const QString &keyColor, const QString &keyBorderColor, const QString &keyColorOnPressing, const QString &keyBorderColorOnPressing, const QString &sliderColor, const QString &sliderBorderColor);
-    void createLabelKey1(const QString &sliderColor, const QString &sliderBorderColor);
-    void createLabelKey2(const QString &sliderColor, const QString &sliderBorderColor);
+    void checkStatusKey1(QPushButton *name, int keycode, const QString &imagePath, const QString &keyColor, const QString &keyBorderColor, const QString &keyColorOnPressing, const QString &keyBorderColorOnPressing, const QString &sliderColor, const QString &sliderBorderColor, const QString &sliderImg);
+    void checkStatusKey2(QPushButton *name, int keycode, const QString &imagePath, const QString &keyColor, const QString &keyBorderColor, const QString &keyColorOnPressing, const QString &keyBorderColorOnPressing, const QString &sliderColor, const QString &sliderBorderColor, const QString &sliderImg);
+    void createLabelKey1(const QString &sliderColor, const QString &sliderBorderColor, const QString &sliderImg);
+    void createLabelKey2(const QString &sliderColor, const QString &sliderBorderColor, const QString &sliderImg);
     void updateLabelSizeKey1(int width);
     void updateLabelSizeKey2(int width);
     void startLabelAnimationKey1();
     void startLabelAnimationKey2();
     void removeLabelKey1();
     void removeLabelKey2();
+    void fadeInLabel(QLabel *label);
 };
 #endif // MAINWINDOW_H

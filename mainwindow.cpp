@@ -8,6 +8,10 @@
 #include <QLabel>
 #include <QFile>
 #include <QPropertyAnimation>
+#include <QParallelAnimationGroup>
+#include <QGraphicsOpacityEffect>
+#include <QEasingCurve>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -62,24 +66,23 @@ MainWindow::MainWindow(QWidget *parent)
     QString on_pressing_border_key_2 = settings.value("/colors_on_pressing/border_key_2").toString();
 
 
-    if (!QFile::exists(imageKey1)) {
-        imageKey1 = ":/img/img/logo.png";
-    }
+    // Slider image
+    // settings.setValue("/slider_images/key_1", "path_of_your_img");
+    // settings.setValue("/slider_images/key_2", "path_of_your_img");
+    QString slider_image_key_1 = settings.value("/slider_images/key_1").toString();
+    QString slider_image_key_2 = settings.value("/slider_images/key_2").toString();
 
-    if (!QFile::exists(imageKey2)) {
-        imageKey2 = ":/img/img/logo.png";
-    }
 
     QTimer *timerKey1 = new QTimer(this);
-    connect(timerKey1, &QTimer::timeout, this, [this, key_1, imageKey1, background_key_1, border_key_1, on_pressing_background_key_1, on_pressing_border_key_1, slider_1, slider_border_1]() {
-        checkStatusKey1(ui->ONE, key_1, imageKey1, background_key_1, border_key_1, on_pressing_background_key_1, on_pressing_border_key_1, slider_1, slider_border_1);
+    connect(timerKey1, &QTimer::timeout, this, [this, key_1, imageKey1, background_key_1, border_key_1, on_pressing_background_key_1, on_pressing_border_key_1, slider_1, slider_border_1, slider_image_key_1]() {
+        checkStatusKey1(ui->ONE, key_1, imageKey1, background_key_1, border_key_1, on_pressing_background_key_1, on_pressing_border_key_1, slider_1, slider_border_1, slider_image_key_1);
 
     });
     timerKey1->start(15);
 
     QTimer *timerKey2 = new QTimer(this);
-    connect(timerKey2, &QTimer::timeout, this, [this, key_2, imageKey2, background_key_2, border_key_2, on_pressing_background_key_2, on_pressing_border_key_2, slider_2, slider_border_2]() {
-        checkStatusKey2(ui->TWO, key_2, imageKey2, background_key_2, border_key_2, on_pressing_background_key_2, on_pressing_border_key_2, slider_2, slider_border_2);
+    connect(timerKey2, &QTimer::timeout, this, [this, key_2, imageKey2, background_key_2, border_key_2, on_pressing_background_key_2, on_pressing_border_key_2, slider_2, slider_border_2, slider_image_key_2]() {
+        checkStatusKey2(ui->TWO, key_2, imageKey2, background_key_2, border_key_2, on_pressing_background_key_2, on_pressing_border_key_2, slider_2, slider_border_2, slider_image_key_2);
     });
     timerKey2->start(15);
 
@@ -91,7 +94,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::checkStatusKey1(QPushButton *name, int keycode, const QString &imagePath, const QString &keyColor, const QString &keyBorderColor, const QString &keyColorOnPressing, const QString &keyBorderColorOnPressing, const QString &sliderColor, const QString &sliderBorderColor)
+void MainWindow::checkStatusKey1(QPushButton *name, int keycode, const QString &imagePath, const QString &keyColor, const QString &keyBorderColor, const QString &keyColorOnPressing, const QString &keyBorderColorOnPressing, const QString &sliderColor, const QString &sliderBorderColor, const QString &sliderImg)
 {
     SHORT KeyState = GetKeyState(keycode);
 
@@ -99,7 +102,7 @@ void MainWindow::checkStatusKey1(QPushButton *name, int keycode, const QString &
         if (!keyPressedKey1) {
             keyPressedKey1 = true;
             keyPressTimesKey1 = 0;
-            createLabelKey1(sliderColor, sliderBorderColor);
+            createLabelKey1(sliderColor, sliderBorderColor, sliderImg);
         }
 
         keyPressTimesKey1 += 10;
@@ -117,16 +120,42 @@ void MainWindow::checkStatusKey1(QPushButton *name, int keycode, const QString &
     }
 }
 
-void MainWindow::createLabelKey1(const QString &sliderColor, const QString &sliderBorderColor)
+void MainWindow::createLabelKey1(const QString &sliderColor, const QString &sliderBorderColor, const QString &sliderImg)
 {
-    QLabel *newLabel = new QLabel(this);
-    newLabel->setStyleSheet(QString("background-color: %1; border-color: %2; border-style: solid; border-width: 2px;").arg(sliderColor).arg(sliderBorderColor));
+    QLabel *newLabel = new QLabel(this->centralWidget());
 
-    newLabel->setGeometry(700, 10, 10, 75);
+    if (sliderImg.isEmpty() || sliderImg == "") {
+        newLabel->setStyleSheet(QString(
+                                    "background-color: %1; "
+                                    "border-color: %2; "
+                                    "border-style: solid; "
+                                    "border-width: 2px;")
+                                    .arg(sliderColor)
+                                    .arg(sliderBorderColor));
+    } else {
+        newLabel->setStyleSheet(QString(
+                                    "background-color: %1; "
+                                    "border-color: %2; "
+                                    "border-style: solid; "
+                                    "border-width: 2px; "
+                                    "background-image: url(%3); "
+                                    "background-position: top left; "
+                                    "background-repeat: repeat-x;")
+                                    .arg(sliderColor)
+                                    .arg(sliderBorderColor)
+                                    .arg(sliderImg));
+    }
+
+    newLabel->setGeometry(750, 9, 10, 75);
     newLabel->show();
+    newLabel->lower();
+
+    fadeInLabel(newLabel);
 
     labelsKey1.append(newLabel);
 }
+
+
 
 void MainWindow::updateLabelSizeKey1(int width)
 {
@@ -142,22 +171,43 @@ void MainWindow::startLabelAnimationKey1()
 {
     if (labelsKey1.isEmpty()) return;
 
-    QLabel *label = labelsKey1.takeFirst();
-    int xPos = label->x();
-    int yPos = label->y();
+    QLabel *label = labelsKey1.last();
+    QString bgImage = label->styleSheet();
+    bool hasImage = bgImage.contains("background-image: url(") && !bgImage.contains("background-image: none");
 
-    QPropertyAnimation *animation = new QPropertyAnimation(label, "pos");
-    animation->setDuration(1500);
-    animation->setStartValue(QPoint(xPos, yPos));
-    animation->setEndValue(QPoint(xPos - 1000, yPos));
+    int currentWidth = label->width();
+    int targetWidth = currentWidth;
 
-    connect(animation, &QPropertyAnimation::finished, this, [label]() {
-        label->deleteLater();
-    });
+    if (hasImage) {
+        targetWidth = ((currentWidth + 74) / 75) * 75;
+    }
 
-    animation->start();
-    animationsKey1.append(animation);
+    int newX = label->x() - (targetWidth - currentWidth);
+
+    QParallelAnimationGroup *group = new QParallelAnimationGroup;
+
+    if (hasImage) {
+        QPropertyAnimation *sizeAnimation = new QPropertyAnimation(label, "geometry");
+        sizeAnimation->setDuration(75);
+        sizeAnimation->setStartValue(label->geometry());
+        sizeAnimation->setEndValue(QRect(newX, label->y(), targetWidth, 75));
+        sizeAnimation->setEasingCurve(QEasingCurve::OutCubic);
+        group->addAnimation(sizeAnimation);
+    }
+
+    QPropertyAnimation *moveAnimation = new QPropertyAnimation(label, "pos");
+    moveAnimation->setDuration(1500);
+    moveAnimation->setStartValue(label->pos());
+    moveAnimation->setEndValue(QPoint(newX - 1000, label->y()));
+    moveAnimation->setEasingCurve(QEasingCurve::OutQuad);
+    group->addAnimation(moveAnimation);
+
+    connect(group, &QParallelAnimationGroup::finished, group, &QObject::deleteLater);
+    connect(group, &QParallelAnimationGroup::finished, label, &QObject::deleteLater);
+
+    group->start();
 }
+
 
 void MainWindow::removeLabelKey1()
 {
@@ -166,7 +216,7 @@ void MainWindow::removeLabelKey1()
     }
 }
 
-void MainWindow::checkStatusKey2(QPushButton *name, int keycode, const QString &imagePath, const QString &keyColor, const QString &keyBorderColor, const QString &keyColorOnPressing, const QString &keyBorderColorOnPressing, const QString &sliderColor, const QString &sliderBorderColor)
+void MainWindow::checkStatusKey2(QPushButton *name, int keycode, const QString &imagePath, const QString &keyColor, const QString &keyBorderColor, const QString &keyColorOnPressing, const QString &keyBorderColorOnPressing, const QString &sliderColor, const QString &sliderBorderColor, const QString &sliderImg)
 {
     SHORT KeyState = GetKeyState(keycode);
 
@@ -174,7 +224,7 @@ void MainWindow::checkStatusKey2(QPushButton *name, int keycode, const QString &
         if (!keyPressedKey2) {
             keyPressedKey2 = true;
             keyPressTimesKey2 = 0;
-            createLabelKey2(sliderColor, sliderBorderColor);
+            createLabelKey2(sliderColor, sliderBorderColor, sliderImg);
         }
 
         keyPressTimesKey2 += 10;
@@ -192,13 +242,37 @@ void MainWindow::checkStatusKey2(QPushButton *name, int keycode, const QString &
     }
 }
 
-void MainWindow::createLabelKey2(const QString &sliderColor, const QString &sliderBorderColor)
+void MainWindow::createLabelKey2(const QString &sliderColor, const QString &sliderBorderColor, const QString &sliderImg)
 {
-    QLabel *newLabel = new QLabel(this);
-    newLabel->setStyleSheet(QString("background-color: %1; border-color: %2; border-style: solid; border-width: 2px;").arg(sliderColor).arg(sliderBorderColor));
+    QLabel *newLabel = new QLabel(this->centralWidget());
 
-    newLabel->setGeometry(700, 90, 10, 75);
+    if (sliderImg.isEmpty() || sliderImg == "") {
+        newLabel->setStyleSheet(QString(
+                                    "background-color: %1; "
+                                    "border-color: %2; "
+                                    "border-style: solid; "
+                                    "border-width: 2px;")
+                                    .arg(sliderColor)
+                                    .arg(sliderBorderColor));
+    } else {
+        newLabel->setStyleSheet(QString(
+                                    "background-color: %1; "
+                                    "border-color: %2; "
+                                    "border-style: solid; "
+                                    "border-width: 2px; "
+                                    "background-image: url(%3); "
+                                    "background-position: top left; "
+                                    "background-repeat: repeat-x;")
+                                    .arg(sliderColor)
+                                    .arg(sliderBorderColor)
+                                    .arg(sliderImg));
+    }
+
+    newLabel->setGeometry(750, 89, 10, 75);
     newLabel->show();
+    newLabel->lower();
+
+    fadeInLabel(newLabel);
 
     labelsKey2.append(newLabel);
 }
@@ -217,21 +291,41 @@ void MainWindow::startLabelAnimationKey2()
 {
     if (labelsKey2.isEmpty()) return;
 
-    QLabel *label = labelsKey2.takeFirst();
-    int xPos = label->x();
-    int yPos = label->y();
+    QLabel *label = labelsKey2.last();
+    QString bgImage = label->styleSheet();
+    bool hasImage = bgImage.contains("background-image: url(") && !bgImage.contains("background-image: none");
 
-    QPropertyAnimation *animation = new QPropertyAnimation(label, "pos");
-    animation->setDuration(1500);
-    animation->setStartValue(QPoint(xPos, yPos));
-    animation->setEndValue(QPoint(xPos - 1000, yPos));
+    int currentWidth = label->width();
+    int targetWidth = currentWidth;
 
-    connect(animation, &QPropertyAnimation::finished, this, [label]() {
-        label->deleteLater();
-    });
+    if (hasImage) {
+        targetWidth = ((currentWidth + 74) / 75) * 75;
+    }
 
-    animation->start();
-    animationsKey2.append(animation);
+    int newX = label->x() - (targetWidth - currentWidth);
+
+    QParallelAnimationGroup *group = new QParallelAnimationGroup;
+
+    if (hasImage) {
+        QPropertyAnimation *sizeAnimation = new QPropertyAnimation(label, "geometry");
+        sizeAnimation->setDuration(75);
+        sizeAnimation->setStartValue(label->geometry());
+        sizeAnimation->setEndValue(QRect(newX, label->y(), targetWidth, 75));
+        sizeAnimation->setEasingCurve(QEasingCurve::OutCubic);
+        group->addAnimation(sizeAnimation);
+    }
+
+    QPropertyAnimation *moveAnimation = new QPropertyAnimation(label, "pos");
+    moveAnimation->setDuration(1500);
+    moveAnimation->setStartValue(label->pos());
+    moveAnimation->setEndValue(QPoint(newX - 1000, label->y()));
+    moveAnimation->setEasingCurve(QEasingCurve::OutQuad);
+    group->addAnimation(moveAnimation);
+
+    connect(group, &QParallelAnimationGroup::finished, group, &QObject::deleteLater);
+    connect(group, &QParallelAnimationGroup::finished, label, &QObject::deleteLater);
+
+    group->start();
 }
 
 void MainWindow::removeLabelKey2()
@@ -240,3 +334,19 @@ void MainWindow::removeLabelKey2()
         labelsKey2.takeFirst()->deleteLater();
     }
 }
+
+
+void MainWindow::fadeInLabel(QLabel *label)
+{
+    QGraphicsOpacityEffect *opacityEffect = new QGraphicsOpacityEffect(label);
+    label->setGraphicsEffect(opacityEffect);
+
+    QPropertyAnimation *fadeIn = new QPropertyAnimation(opacityEffect, "opacity");
+    fadeIn->setDuration(250);
+    fadeIn->setStartValue(0.0);
+    fadeIn->setEndValue(1.0);
+    fadeIn->setEasingCurve(QEasingCurve::OutQuad);
+
+    fadeIn->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
