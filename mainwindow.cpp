@@ -11,7 +11,7 @@
 #include <QParallelAnimationGroup>
 #include <QGraphicsOpacityEffect>
 #include <QEasingCurve>
-
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -124,7 +124,7 @@ void MainWindow::checkStatusKey1(QPushButton *name, int keycode, const QString &
                     .arg(keyBorderColor);
     }
 
-    if (!imagePath.isEmpty()) {
+    if (imagePath != "") {
         style.append(QString(" background-image: url(%1); background-position: center; background-repeat: no-repeat;").arg(imagePath));
     }
 
@@ -258,7 +258,7 @@ void MainWindow::checkStatusKey2(QPushButton *name, int keycode, const QString &
                     .arg(keyBorderColor);
     }
 
-    if (!imagePath.isEmpty()) {
+    if (imagePath != "") {
         style.append(QString(" background-image: url(%1); background-position: center; background-repeat: no-repeat;").arg(imagePath));
     }
 
