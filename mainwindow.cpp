@@ -97,6 +97,7 @@ MainWindow::~MainWindow()
 void MainWindow::checkStatusKey1(QPushButton *name, int keycode, const QString &imagePath, const QString &keyColor, const QString &keyBorderColor, const QString &keyColorOnPressing, const QString &keyBorderColorOnPressing, const QString &sliderColor, const QString &sliderBorderColor, const QString &sliderImg)
 {
     SHORT KeyState = GetKeyState(keycode);
+    QString style;
 
     if (KeyState & 0x8000) {
         if (!keyPressedKey1) {
@@ -108,7 +109,9 @@ void MainWindow::checkStatusKey1(QPushButton *name, int keycode, const QString &
         keyPressTimesKey1 += 10;
         updateLabelSizeKey1(keyPressTimesKey1);
 
-        name->setStyleSheet(QString("background-color: %2; border-color: %3; border-style: solid; border-width: 2px; background-image: url(%1); background-position: center; background-repeat: no-repeat;").arg(imagePath).arg(keyColorOnPressing).arg(keyBorderColorOnPressing));
+        style = QString("background-color: %1; border-color: %2; border-style: solid; border-width: 2px;")
+                    .arg(keyColorOnPressing)
+                    .arg(keyBorderColorOnPressing);
     }
     else {
         if (keyPressedKey1) {
@@ -116,9 +119,18 @@ void MainWindow::checkStatusKey1(QPushButton *name, int keycode, const QString &
             startLabelAnimationKey1();
         }
 
-        name->setStyleSheet(QString("background-color: %2; border-color: %3; border-style: solid; border-width: 2px; background-image: url(%1); background-position: center; background-repeat: no-repeat;").arg(imagePath).arg(keyColor).arg(keyBorderColor));
+        style = QString("background-color: %1; border-color: %2; border-style: solid; border-width: 2px;")
+                    .arg(keyColor)
+                    .arg(keyBorderColor);
     }
+
+    if (!imagePath.isEmpty()) {
+        style.append(QString(" background-image: url(%1); background-position: center; background-repeat: no-repeat;").arg(imagePath));
+    }
+
+    name->setStyleSheet(style);
 }
+
 
 void MainWindow::createLabelKey1(const QString &sliderColor, const QString &sliderBorderColor, const QString &sliderImg)
 {
@@ -219,6 +231,7 @@ void MainWindow::removeLabelKey1()
 void MainWindow::checkStatusKey2(QPushButton *name, int keycode, const QString &imagePath, const QString &keyColor, const QString &keyBorderColor, const QString &keyColorOnPressing, const QString &keyBorderColorOnPressing, const QString &sliderColor, const QString &sliderBorderColor, const QString &sliderImg)
 {
     SHORT KeyState = GetKeyState(keycode);
+    QString style;
 
     if (KeyState & 0x8000) {
         if (!keyPressedKey2) {
@@ -230,7 +243,9 @@ void MainWindow::checkStatusKey2(QPushButton *name, int keycode, const QString &
         keyPressTimesKey2 += 10;
         updateLabelSizeKey2(keyPressTimesKey2);
 
-        name->setStyleSheet(QString("background-color: %2; border-color: %3; border-style: solid; border-width: 2px; background-image: url(%1); background-position: center; background-repeat: no-repeat;").arg(imagePath).arg(keyColorOnPressing).arg(keyBorderColorOnPressing));
+        style = QString("background-color: %1; border-color: %2; border-style: solid; border-width: 2px;")
+                    .arg(keyColorOnPressing)
+                    .arg(keyBorderColorOnPressing);
     }
     else {
         if (keyPressedKey2) {
@@ -238,9 +253,18 @@ void MainWindow::checkStatusKey2(QPushButton *name, int keycode, const QString &
             startLabelAnimationKey2();
         }
 
-        name->setStyleSheet(QString("background-color: %2; border-color: %3; border-style: solid; border-width: 2px; background-image: url(%1); background-position: center; background-repeat: no-repeat;").arg(imagePath).arg(keyColor).arg(keyBorderColor));
+        style = QString("background-color: %1; border-color: %2; border-style: solid; border-width: 2px;")
+                    .arg(keyColor)
+                    .arg(keyBorderColor);
     }
+
+    if (!imagePath.isEmpty()) {
+        style.append(QString(" background-image: url(%1); background-position: center; background-repeat: no-repeat;").arg(imagePath));
+    }
+
+    name->setStyleSheet(style);
 }
+
 
 void MainWindow::createLabelKey2(const QString &sliderColor, const QString &sliderBorderColor, const QString &sliderImg)
 {
